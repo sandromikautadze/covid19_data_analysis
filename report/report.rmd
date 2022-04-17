@@ -144,4 +144,4 @@ countries
 **Note**: if we extract the vector on the whole cleaned data set we get that the length of the vector of countries is 108, so we cover more than half of the world with our data. The reason we do our analysis on just the top 10 is because we have more data on the tests made, and hence a better chance of having the correct data. As a matter of fact, there might be countries with higher ratios, but more incorrect and non sufficient data, making our data exploration biased.
 
 Conclude on final parts of the report. 
-
+Add vectors stuff
