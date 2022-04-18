@@ -1,0 +1,217 @@
+---
+title: "Report: COVID-19 Data Analysis with R"
+author: "Sandro Mikautadze"
+output: pdf_document
+---
+
+```{r include = FALSE}
+library(tibble)
+library(dplyr)
+covid19_raw <- read.csv("raw_data/covid19.csv")
+covid19_allstates <- covid19_raw %>% filter(Province_State == "All States")
+
+covid19_allstates_daily <- covid19_allstates %>% select(Date,
+                                                        Country_Region,
+                                                        active,
+                                                        hospitalizedCurr,
+                                                        daily_tested,
+                                                        daily_positive
+                                                        )
+covid19_allstates_daily_sum <- covid19_allstates_daily %>% 
+                               group_by(Country_Region) %>%
+                               summarise(tested = daily_tested %>% sum,
+                                         positive = daily_positive %>% sum,
+                                         active = active %>% sum,
+                                         hospitalized = hospitalizedCurr %>% sum
+                               ) %>%
+                               arrange(-tested)
+covid19_top10 <- head(covid19_allstates_daily_sum, 10)
+countries <- covid19_top10 %>% pull(Country_Region)
+tested_cases <- covid19_top10 %>% pull(tested)
+positive_cases <- covid19_top10 %>% pull(positive)
+names(tested_cases) <- countries
+names(positive_cases) <- countries
+positive_tested_ratio <- sort(positive_cases / tested_cases)
+ratio_top4 <- positive_tested_ratio[length(positive_tested_ratio):
+                                    (length(positive_tested_ratio) - 3)]
+uk_data <- c(0.11326062 * 100, 1473672, 166909)
+us_data <- c( 0.10861819 * 100, 17282363, 1877179)
+tur_data <- c(0.08071172 * 100, 2031192, 163941)
+it_data <- c(0.06152337 * 100, 4091291, 251710)
+top4_matrix <- rbind(uk_data, us_data, tur_data, it_data)
+rownames(top4_matrix) <- c("UK", "US", "Turkey", "Italy")
+colnames(top4_matrix) <- c("Positive/Tested %", "Tested", "Positive")
+```
+
+
+# Introduction
+
+This is exactly the TLDR you were looking for. **Enjoy!**
+
+## What is the project about?
+
+The following project is an individual assignment taken from a course on [Dataquest](https://www.dataquest.io/).
+The aim is to analyse a set of data collected from January 20th to June 1st 2020 taken from [Kaggle](https://www.kaggle.com/datasets/lin0li/covid19testing).
+The research questions are the following:
+
+* **Q1**: which countries have had the highest number of positive cases against the number of tests?
+
+* **Q2**: which countries have made the best effort in terms of the number of COVID-19 tests conducted related to their population?
+
+* **Q3**: which countries were ultimately the most and least affected related to their population?
+
+The type of analysis is purely **descriptive**.
+All the snippets of code in this report use variables defined in the scripts.
+
+# Data
+
+## Raw data overview
+
+We first analyse the dimensions, the column names and the information provided by each column in the data set: 
+
+```{r}
+glimpse(covid19_raw)
+```
+
+Looking at the data set repository from Kaggle we have further information on the meaning of each column:
+
+* `Date`: date of the data collection
+
+* `Country_Region`: country names
+
+* `Province_State`: state/province names; value "All States" is put when state/provincial level data is NA
+
+* `positive`: cumulative number of positive cases reported
+
+* `active`: number of actively cases on that day
+
+* `hospitalized`: cumulative number of hospitalized cases reported
+
+* `hospitalizedCurr`: number of actively hospitalized cases on that day
+
+* `recovered`: cumulative number of recovered cases reported
+
+* `death`: cumulative number of deaths reported
+
+* `total tested`: cumulative number of tests conducted
+
+**Note**: Not all columns in our version of the data frame were present in the data description on Kaggle at the time of download. This indicates that the downloaded file was not updated to a later version of the data set.
+Yet, Dataquest gives the information provided by the other columns:
+
+* `Continent_Name`: continent name
+
+* `Two_Letter_Country_Code`: country codes
+
+* `Country_Region`: country names
+
+* `daily_tested`: number of tests conducted on the day; if daily data is unavailable, daily tested is averaged across number of days in between
+
+* `daily_positive`: number of positive cases reported on the day; if daily data is unavailable, daily positive is averaged across number of days in
+
+## Raw Data Cleaning
+
+### Data Cleaning Q1
+
+The first clean that we do is removing the `Province_State` column. Indeed, it might create some unwanted bias, as it also gives information about the specific province. So, to make the data "nationalized", we avoid looking at precise regions, and consider only those rows with "All States" value:
+
+```{r}
+glimpse(covid19_allstates)
+```
+
+As we can see we're left with just 30% of the data we previously had.
+
+The second thing that we need to be aware of is the "unit of measurement" adopted by each column. For example, there are factors with cumulative information, others with daily information. To better address our research questions, we only consider the columns providing daily data, that is `Date`, `Country_Region`, `active`, `hospitalizedCurr`, `daily_tested`, `daily_positive`. We get the following refactored data frame:
+```{r}
+glimpse(covid19_allstates_daily)
+```
+
+Now data has been cleaned for Q1.
+
+### Data Cleaning for Q2
+
+### Data Cleaning for Q3
+
+
+# Analysis
+
+## Data Analysis for Q1
+
+Recall that with Q1 we are trying to answer the following question: *which countries have had the highest number of positive cases against the number of tests?*
+
+Based on our cleaned data set, we notice that our data is collected on a daily basis. Therefore we can find the ratios on the overall number of positive cases over the total number of tests performed in each country each day.
+What We want to do is create a data set that groups `Country_Region` and aggregates data over all tests made, positive, active and hospitalized cases in the period of time that the data set covers (i.e. from January 20th to June 1st 2020). 
+
+Displaying the countries based on those that have done more tests, we get:
+
+```{r echo = FALSE}
+head(covid19_allstates_daily_sum, 15)
+```
+
+Now, the result can be easily found by dividing the `positive` cases over the `tested` column and rank the result for each country. We are going to do it using vectors, extracted from the data frame, as an exercise.
+
+We first extract a vector of the 10 countries that have done more tests, over which we are going to concude the rest of the analysis:
+```{r}
+countries
+```
+
+**Note**: if we extract the vector on the whole cleaned data set we get that the length of the vector `countries` is 108, which means that we cover more than half of the world with our data. Yet we decide to restrict the study-case on just the top 10 is because we have more data on the tests made, and hence a better chance of having the correct data. As a matter of fact, there might be countries with higher ratios, but more incorrect and non sufficient data, making our data exploration biased (or at least not correct enough).
+
+Then, we extract our two final vectors to run the analysis and assign to each key the name of the country. Thus, we get:
+```{r}
+tested_cases
+```
+```{r}
+positive_cases
+```
+
+
+The conclusion lies in a simple division: `positive_cases / tested_cases`, which yields the following result:
+```{r}
+positive_tested_ratio
+```
+## Data Analysis for Q2
+
+## Data Analysis for Q3
+
+
+# Conclusions
+
+This paragraph concisely summarizes the findings of each research question:
+
+* **Q1**: which countries have had the highest number of positive cases against the number of tests? 
+
+The following is the final vector we found in the Data Analysis for Q1 section:
+```{r echo = FALSE}
+positive_tested_ratio
+```
+Since there is no precise meaning in the word *highest* that is in question, we decide to choose 4 countries with the highest positive/tests ratio. By doing so, we get:
+```{r echo = FALSE}
+ratio_top4
+```
+Therefore the top 4 countries were (in order):
+
+1. United Kingdom with a ratio of `0.11326062`
+
+2. United States with a ratio of `0.10861819`
+
+3. Turkey with a ratio of `0.08071172`
+
+4. Italy with a ratio of `0.06152337 `
+
+Their corresponding data is displayed in the next matrix:
+```{r echo = FALSE}
+top4_matrix
+```
+
+* **Q2**: which countries have made the best effort in terms of the number of COVID-19 tests conducted related to their population?
+
+* **Q3**: which countries were ultimately the most and least affected related to their population?
+
+# Improvements
+
+* **Q1**. It was solely based on the countries that had more data on the number of tests made. This is correct but does not give the best result (explain!)
+
+* **Q2**. 
+
+* **Q3**.
+
