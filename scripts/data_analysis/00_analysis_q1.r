@@ -29,7 +29,12 @@ positive_tested_ratio <- sort(positive_cases / tested_cases)
 ratio_top4 <- positive_tested_ratio[length(positive_tested_ratio):
                                     (length(positive_tested_ratio) - 3)]
 
-# We save the results of the top4 countries in a smaller version of our data
-# set in the form of a matrix
-
-
+# Doing a matrix with each top4 country's data
+# This method is pretty expensive and non-efficient, but is the only one I know
+uk_data <- c(0.11326062 * 100, 1473672, 166909)
+us_data <- c( 0.10861819 * 100, 17282363, 1877179)
+tur_data <- c(0.08071172 * 100, 2031192, 163941)
+it_data <- c(0.06152337 * 100, 4091291, 251710)
+top4_matrix <- rbind(uk_data, us_data, tur_data, it_data)
+rownames(top4_matrix) <- c("UK", "US", "Turkey", "Italy")
+colnames(top4_matrix) <- c("Positive/Tested %", "Tested", "Positive")
