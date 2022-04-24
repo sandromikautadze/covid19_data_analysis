@@ -207,11 +207,17 @@ top4_matrix
 
 * **Q3**: which countries were ultimately the most and least affected related to their population?
 
-# Improvements
+# Improvements and Comments on the Analysis
 
-* **Q1**. It was solely based on the countries that had more data on the number of tests made. This is correct but does not give the best result (explain!)
+## Q1: which countries have had the highest number of positive cases against the number of tests?
 
-* **Q2**. 
+Even though the structure of this analysis was very clear and defined, the results obtained might not properly answer the question. As a matter of fact, the whole data analysis was mainly focused on the countries that had more data available regarding the number tests made. Therefore, if on the one hand we ended up having a pretty good estimate of the ratio for those countries with many swabs, on the other we might have exluded other possible feasible countires, simply because they did not have a sufficient number of tests made in this data set.
+From a purely statistical point of view, I cannot assess whether this result has a true value or not, as I still don't have sufficient knowledge on this matter.
+To improve the analysis, we could have tried to find a better assesment method for the countries to include in the analysis. 
 
-* **Q3**.
+## Q2: which countries have made the best effort in terms of the number of COVID-19 tests conducted related to their population? 
+
+## Q3: which countries were ultimately the most and least affected related to their population?
+
+
 
