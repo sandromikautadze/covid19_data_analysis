@@ -1,10 +1,19 @@
 ---
-title: "Report: COVID-19 Data Analysis with R"
+title: |
+  | \vspace{5cm} \LARGE COVID-19 Data Analysis with R
 author: "Sandro Mikautadze"
-output: pdf_document
+date: "Last compiled on `r format(Sys.time(), '%d/%m/%Y')`"
+output:
+  pdf_document:
+    number_sections: true
 ---
 
-```{r include = FALSE}
+\newpage
+\tableofcontents
+\newpage
+
+
+```{r setup, include = FALSE}
 library(tibble)
 library(dplyr)
 covid19_raw <- read.csv("raw_data/covid19.csv")
@@ -43,37 +52,36 @@ rownames(top4_matrix) <- c("UK", "US", "Turkey", "Italy")
 colnames(top4_matrix) <- c("Positive/Tested %", "Tested", "Positive")
 ```
 
+\newpage
 
 # Introduction
 
-This is exactly the TLDR you were looking for. **Enjoy!**
+This is exactly the TLDR you were looking for! 
+
+Before starting to read, I would like to specify that the type of analysis is purely **descriptive** and does not aim at understanding the correlations and causation of the results.
+
+All code chunks in this report use variables defined in the scripts.
+
+**Enjoy!**
 
 ## What is the project about?
 
 The following project is an individual assignment taken from a course on [Dataquest](https://www.dataquest.io/).
-The aim is to analyse a set of data collected from January 20th to June 1st 2020 taken from [Kaggle](https://www.kaggle.com/datasets/lin0li/covid19testing).
-The research questions are the following:
+The aim is to analyse a dataset collected from January 20th, 2020 to June 1st, 2020 taken from [Kaggle](https://www.kaggle.com/datasets/lin0li/covid19testing).
 
-* **Q1**: which countries have had the highest number of positive cases against the number of tests?
-
-* **Q2**: which countries have made the best effort in terms of the number of COVID-19 tests conducted related to their population?
-
-* **Q3**: which countries were ultimately the most and least affected related to their population?
-
-The type of analysis is purely **descriptive**.
-All the snippets of code in this report use variables defined in the scripts.
+The research question is the following: **which countries have had the highest number of positive cases against the number of tests?**
 
 # Data
 
-## Raw data overview
+## Raw data Overview
 
-We first analyse the dimensions, the column names and the information provided by each column in the data set: 
+We first analyse the dimensions, the column names and the information provided by each column in the dataset: 
 
 ```{r}
 glimpse(covid19_raw)
 ```
 
-Looking at the data set repository from Kaggle we have further information on the meaning of each column:
+Looking at the dataset repository from Kaggle we have further information on the meaning of each column:
 
 * `Date`: date of the data collection
 
@@ -104,15 +112,13 @@ Yet, Dataquest gives the information provided by the other columns:
 
 * `Country_Region`: country names
 
-* `daily_tested`: number of tests conducted on the day; if daily data is unavailable, daily tested is averaged across number of days in between
+* `daily_tested`: number of tests conducted on the day; if daily data is unavailable, `daily_tested` is averaged across number of days in between
 
-* `daily_positive`: number of positive cases reported on the day; if daily data is unavailable, daily positive is averaged across number of days in
+* `daily_positive`: number of positive cases reported on the day; if daily data is unavailable, `daily_positive` is averaged across number of days in between
 
 ## Raw Data Cleaning
 
-### Data Cleaning Q1
-
-The first clean that we do is removing the `Province_State` column. Indeed, it might create some unwanted bias, as it also gives information about the specific province. So, to make the data "nationalized", we avoid looking at precise regions, and consider only those rows with "All States" value:
+The first clean that we do is remove the `Province_State` column. Indeed, it might create some unwanted bias, as it also gives information about the specific province. So, to make the data "nationalized", we avoid looking at precise regions, and consider only those rows with "All States" value:
 
 ```{r}
 glimpse(covid19_allstates)
@@ -120,26 +126,17 @@ glimpse(covid19_allstates)
 
 As we can see we're left with just 30% of the data we previously had.
 
-The second thing that we need to be aware of is the "unit of measurement" adopted by each column. For example, there are factors with cumulative information, others with daily information. To better address our research questions, we only consider the columns providing daily data, that is `Date`, `Country_Region`, `active`, `hospitalizedCurr`, `daily_tested`, `daily_positive`. We get the following refactored data frame:
+The second thing that we need to be aware of is the "unit of measurement" adopted by each column. For example, there are factors with cumulative information, others with daily information. To better address our research question, we only consider the columns providing daily data, that is `Date`, `Country_Region`, `active`, `hospitalizedCurr`, `daily_tested`, `daily_positive`. We get the following refactored data frame:
 ```{r}
 glimpse(covid19_allstates_daily)
 ```
 
-Now data has been cleaned for Q1.
-
-### Data Cleaning for Q2
-
-### Data Cleaning for Q3
-
+Now our data is clean.
 
 # Analysis
 
-## Data Analysis for Q1
-
-Recall that with Q1 we are trying to answer the following question: *which countries have had the highest number of positive cases against the number of tests?*
-
-Based on our cleaned data set, we notice that our data is collected on a daily basis. Therefore we can find the ratios on the overall number of positive cases over the total number of tests performed in each country each day.
-What We want to do is create a data set that groups `Country_Region` and aggregates data over all tests made, positive, active and hospitalized cases in the period of time that the data set covers (i.e. from January 20th to June 1st 2020). 
+Based on our cleaned dataset, we notice that our data is collected on a daily basis. Therefore, we can find the ratio of the overall number of positive cases over the total number of tests performed in each country each day.
+What We want to do is create a data set that groups `Country_Region` and aggregates data on all tests made, positive, active and hospitalized cases in the period of time that the dataset covers (i.e. from January 20th to June 1st).
 
 Displaying the countries based on those that have done more tests, we get:
 
@@ -147,14 +144,14 @@ Displaying the countries based on those that have done more tests, we get:
 head(covid19_allstates_daily_sum, 15)
 ```
 
-Now, the result can be easily found by dividing the `positive` cases over the `tested` column and rank the result for each country. We are going to do it using vectors, extracted from the data frame, as an exercise.
+Now, the result can be easily found by dividing the `positive` cases over the `tested` column and ranking the result for each country. We are going to do it using vectors, extracted from the data frame, as an exercise.
 
-We first extract a vector of the 10 countries that have done more tests, over which we are going to concude the rest of the analysis:
+We first extract a vector of the 10 countries that have done more tests, over which we are going to conclude the rest of the analysis:
 ```{r}
 countries
 ```
 
-**Note**: if we extract the vector on the whole cleaned data set we get that the length of the vector `countries` is 108, which means that we cover more than half of the world with our data. Yet we decide to restrict the study-case on just the top 10 is because we have more data on the tests made, and hence a better chance of having the correct data. As a matter of fact, there might be countries with higher ratios, but more incorrect and non sufficient data, making our data exploration biased (or at least not correct enough).
+**Note**: if we extract the vector on the whole cleaned data set we get that the length of the vector `countries` is 108, which means that we cover more than half of the world with our data. Yet we decide to restrict the study case to just the top 10 because we have more data on the tests made, and hence a better chance of having the correct data (i.e. a more accurate estimate). As a matter of fact, there might be countries with higher ratios, but more non sufficient data, making our data exploration biased (or at least not correct enough).
 
 Then, we extract our two final vectors to run the analysis and assign to each key the name of the country. Thus, we get:
 ```{r}
@@ -169,55 +166,32 @@ The conclusion lies in a simple division: `positive_cases / tested_cases`, which
 ```{r}
 positive_tested_ratio
 ```
-## Data Analysis for Q2
 
-## Data Analysis for Q3
+# Conclusion
 
-
-# Conclusions
-
-This paragraph concisely summarizes the findings of each research question:
-
-* **Q1**: which countries have had the highest number of positive cases against the number of tests? 
-
-The following is the final vector we found in the Data Analysis for Q1 section:
-```{r echo = FALSE}
-positive_tested_ratio
-```
-Since there is no precise meaning in the word *highest* that is in question, we decide to choose 4 countries with the highest positive/tests ratio. By doing so, we get:
+Referring the research question, since there is no precise meaning in the word *highest*, we decide to choose the top 4 countries with the highest positive/tests ratio. By doing so, we get:
 ```{r echo = FALSE}
 ratio_top4
 ```
-Therefore the top 4 countries were (in order):
 
-1. United Kingdom with a ratio of `0.11326062`
+Therefore the **top 4 countries** were (in order):
 
-2. United States with a ratio of `0.10861819`
+1. **United Kingdom** with a ratio of `0.11326062`
 
-3. Turkey with a ratio of `0.08071172`
+2. **United States** with a ratio of `0.10861819`
 
-4. Italy with a ratio of `0.06152337 `
+3. **Turkey** with a ratio of `0.08071172`
+
+4. **Italy** with a ratio of `0.06152337 `
 
 Their corresponding data is displayed in the next matrix:
 ```{r echo = FALSE}
 top4_matrix
 ```
 
-* **Q2**: which countries have made the best effort in terms of the number of COVID-19 tests conducted related to their population?
+# Methods of Improvement and Comments
 
-* **Q3**: which countries were ultimately the most and least affected related to their population?
-
-# Improvements and Comments on the Analysis
-
-## Q1: which countries have had the highest number of positive cases against the number of tests?
-
-Even though the structure of this analysis was very clear and defined, the results obtained might not properly answer the question. As a matter of fact, the whole data analysis was mainly focused on the countries that had more data available regarding the number tests made. Therefore, if on the one hand we ended up having a pretty good estimate of the ratio for those countries with many swabs, on the other we might have exluded other possible feasible countires, simply because they did not have a sufficient number of tests made in this data set.
-From a purely statistical point of view, I cannot assess whether this result has a true value or not, as I still don't have sufficient knowledge on this matter.
-To improve the analysis, we could have tried to find a better assesment method for the countries to include in the analysis. 
-
-## Q2: which countries have made the best effort in terms of the number of COVID-19 tests conducted related to their population? 
-
-## Q3: which countries were ultimately the most and least affected related to their population?
-
-
-
+Even though the structure of this analysis was very clear and defined, the results obtained might not properly answer the question. As a matter of fact, the whole analysis was mainly focused on the countries that had more data available regarding the number of tests made. It follows that, on the one hand, we ended up having a pretty good estimate of the ratio for those countries with many swabs, on the other hand, we might have excluded other "candidate" countries, simply because they did not have a sufficient number of swabs made in this dataset.
+From a purely statistical point of view, I cannot assess whether the obtained result has a true value or not, as I still don't have sufficient knowledge on this matter.
+To improve the analysis, we could have tried to find a better assessment method for the countries to include in the analysis. 
+Overall, I am satisfied with the analysis, being this my first project.
