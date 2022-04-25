@@ -21,3 +21,4 @@ In addition to that, this project helped me to learn:
 ## Useful links -- last visited 24/04/2022:
 - [DataQuest project](https://www.dataquest.io/m/505-investigating-covid-19-virus-trends/)
 - [Kaggle dataset](https://www.kaggle.com/datasets/lin0li/covid19testing)
+
