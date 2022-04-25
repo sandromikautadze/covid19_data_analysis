@@ -1,3 +1,5 @@
+#public
+
 library(tidyverse)
 
 # Getting new table of overall number of COVID-19 tested, positive, active, and
@@ -27,7 +29,7 @@ names(positive_cases) <- countries
 # Getting vector of positives/tests ratio and finding the top 4
 positive_tested_ratio <- sort(positive_cases / tested_cases)
 ratio_top4 <- positive_tested_ratio[length(positive_tested_ratio):
-                                    (length(positive_tested_ratio) - 3)]
+                                    (length(positive_tested_ratio) - 3)] 
 
 # Doing a matrix with each top4 country's data
 # This method is pretty expensive and non-efficient, but is the only one I know
