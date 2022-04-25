@@ -12,7 +12,6 @@ output:
 \tableofcontents
 \newpage
 
-
 ```{r setup, include = FALSE}
 library(tibble)
 library(dplyr)
